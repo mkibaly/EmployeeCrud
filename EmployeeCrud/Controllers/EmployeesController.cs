@@ -51,7 +51,6 @@ namespace EmployeeCrud.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<ActionResult<Employee>> Create([Bind("Name,JoinDate,Salary")] Employee employee)
         {
             if (ModelState.IsValid)
@@ -68,7 +67,6 @@ namespace EmployeeCrud.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPut("id")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("Name,JoinDate,Salary,Id")] Employee employee)
         {
             if (id != employee.Id)
@@ -88,7 +86,11 @@ namespace EmployeeCrud.Controllers
                 return BadRequest();
             }
 
-            _context.Update(employee);
+            dbEmployee.Salary = employee.Salary;
+            dbEmployee.Name = employee.Name;
+            dbEmployee.JoinDate = employee.JoinDate;
+            
+            _context.Update(dbEmployee);
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -96,7 +98,6 @@ namespace EmployeeCrud.Controllers
 
         // delete: Employees/5
         [HttpDelete("id")]
-        [ValidateAntiForgeryToken]
         public async Task Delete(Guid id)
         {
             var employee = await _context.Employee.FindAsync(id);

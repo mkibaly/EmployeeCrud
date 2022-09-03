@@ -15,5 +15,11 @@ namespace EmployeeCrud.Data
         }
 
         public DbSet<EmployeeCrud.Models.Employee> Employee { get; set; } = default!;
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Employee>()
+                .Property(a => a.Salary).HasColumnType("decimal(18,2)");
+        }
     }
 }
