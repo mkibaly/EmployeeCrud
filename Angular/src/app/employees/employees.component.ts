@@ -5,13 +5,12 @@ import { Contracts } from 'src/api/ContractApi';
 @Component({
   selector: 'app-employees',
   templateUrl: './employees.component.html',
-  styleUrls: ['./employees.component.css']
+  styleUrls: ['./employees.component.css'],
 })
 export class EmployeesComponent implements OnInit {
   employees: Contracts.Employee[] = [];
   selectedEmployee!: Contracts.Employee;
-  constructor(
-    private client: Contracts.Client) {}
+  constructor(private client: Contracts.Client) {}
 
   ngOnInit(): void {
     this.getAll();
@@ -28,9 +27,10 @@ export class EmployeesComponent implements OnInit {
   }
 
   deleteById(id?: string) {
+    if (!confirm('Do you want to DELETE this employee?')) return;
     this.client
       .idDELETE(id)
-      .pipe(finalize(()=> this.getAll()))
+      .pipe(finalize(() => this.getAll()))
       .subscribe((result) => alert('Deleted Successfully.'));
   }
 }
