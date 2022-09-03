@@ -95,7 +95,7 @@ namespace EmployeeCrud.Controllers
         }
 
         // delete: Employees/5
-        [HttpDelete]
+        [HttpDelete("id")]
         [ValidateAntiForgeryToken]
         public async Task Delete(Guid id)
         {
