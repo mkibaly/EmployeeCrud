@@ -10,6 +10,8 @@ using EmployeeCrud.Models;
 
 namespace EmployeeCrud.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
     public class EmployeesController : Controller
     {
         private readonly EmployeeCrudContext _context;
@@ -20,13 +22,15 @@ namespace EmployeeCrud.Controllers
         }
 
         // GET: Employees
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<ActionResult<List<Employee>>> Index()
         {
-              return View(await _context.Employee.ToListAsync());
+            return await _context.Employee.ToListAsync();
         }
 
-        // GET: Employees/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        // GET: Employees/5
+        [HttpGet("id")]
+        public async Task<ActionResult<Employee>> Details(Guid? id)
         {
             if (id == null || _context.Employee == null)
             {
@@ -40,21 +44,15 @@ namespace EmployeeCrud.Controllers
                 return NotFound();
             }
 
-            return View(employee);
+            return employee;
         }
 
-        // GET: Employees/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Employees/Create
+        // POST: Employees
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,JoinDate,Salary,Id")] Employee employee)
+        public async Task<ActionResult<Employee>> Create([Bind("Name,JoinDate,Salary")] Employee employee)
         {
             if (ModelState.IsValid)
             {
@@ -63,29 +61,13 @@ namespace EmployeeCrud.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(employee);
+            return employee;
         }
 
-        // GET: Employees/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
-        {
-            if (id == null || _context.Employee == null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _context.Employee.FindAsync(id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
-            return View(employee);
-        }
-
-        // POST: Employees/Edit/5
+        // PUT: Employees/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPut("id")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("Name,JoinDate,Salary,Id")] Employee employee)
         {
@@ -94,69 +76,37 @@ namespace EmployeeCrud.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(employee);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!EmployeeExists(employee.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(employee);
-        }
-
-        // GET: Employees/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
-        {
-            if (id == null || _context.Employee == null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _context.Employee
+            var dbEmployee = await _context.Employee
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (employee == null)
+            if (dbEmployee == null)
             {
                 return NotFound();
             }
 
-            return View(employee);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            _context.Update(employee);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
-        // POST: Employees/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // delete: Employees/5
+        [HttpDelete]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public async Task Delete(Guid id)
         {
-            if (_context.Employee == null)
-            {
-                return Problem("Entity set 'EmployeeCrudContext.Employee'  is null.");
-            }
             var employee = await _context.Employee.FindAsync(id);
             if (employee != null)
             {
                 _context.Employee.Remove(employee);
             }
-            
+
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
-        private bool EmployeeExists(Guid id)
-        {
-          return _context.Employee.Any(e => e.Id == id);
-        }
     }
 }
