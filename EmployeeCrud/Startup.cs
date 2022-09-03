@@ -22,7 +22,7 @@ namespace EmployeeCrud
 {
     public class Startup
     {
-        private const string AllowAllCors = "AllowAll";
+        private const string AllowConfigCors = "AllowConfigAll";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -71,12 +71,12 @@ namespace EmployeeCrud
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "EmployeeCrud", Version = "v1" });
             });
 
-            services.AddCors(opt => opt.AddPolicy(AllowAllCors,
+            services.AddCors(opt => opt.AddPolicy(AllowConfigCors,
                  builder =>
                  {
                      builder.AllowAnyHeader();
                      builder.AllowAnyMethod();
-                     builder.AllowAnyOrigin();
+                     builder.WithOrigins(Configuration["Cors:Client"]);
                  })
             );
 
@@ -92,7 +92,7 @@ namespace EmployeeCrud
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "EmployeeCrud v1"));
             }
 
-            app.UseCors(AllowAllCors);
+            app.UseCors(AllowConfigCors);
 
             app.UseHttpsRedirection();
 
