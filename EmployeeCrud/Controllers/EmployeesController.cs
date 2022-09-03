@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EmployeeCrud.Data;
 using EmployeeCrud.Models;
+using EmployeeCrud.Dtos;
 
 namespace EmployeeCrud.Controllers
 {
@@ -51,45 +52,47 @@ namespace EmployeeCrud.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public async Task<ActionResult<Employee>> Create([Bind("Name,JoinDate,Salary")] Employee employee)
+        public async Task<ActionResult<Employee>> Create(EmployeeDto employee)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var emp = new Employee
             {
-                employee.Id = Guid.NewGuid();
-                _context.Add(employee);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return employee;
+                Id = Guid.NewGuid(),
+                Name = employee.Name,
+                JoinDate = employee.JoinDate,
+                Salary = employee.Salary
+            };
+            _context.Add(emp);
+            await _context.SaveChangesAsync();
+
+            return emp;
         }
 
         // PUT: Employees/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPut("id")]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Name,JoinDate,Salary,Id")] Employee employee)
+        public async Task<IActionResult> Edit(Guid id, EmployeeDto employee)
         {
-            if (id != employee.Id)
-            {
-                return NotFound();
-            }
-
-            var dbEmployee = await _context.Employee
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (dbEmployee == null)
-            {
-                return NotFound();
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
+            var dbEmployee = await _context.Employee
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (dbEmployee == null)
+            {
+                return NotFound();
+            }
+
             dbEmployee.Salary = employee.Salary;
             dbEmployee.Name = employee.Name;
             dbEmployee.JoinDate = employee.JoinDate;
-            
+
             _context.Update(dbEmployee);
             await _context.SaveChangesAsync();
 

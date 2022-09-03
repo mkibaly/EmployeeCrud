@@ -27,37 +27,6 @@ export class EmployeesComponent implements OnInit {
       .subscribe((result) => (this.selectedEmployee = result));
   }
 
-  create(id: string) {
-    let emp: Contracts.IEmployee = {
-      name: '',
-      joinDate: new Date(),
-      salary: 1000,
-    };
-
-    this.client
-      .employees(Contracts.Employee.fromJS(emp))
-      .subscribe((result) => {
-        alert('Created Successfully.');
-        console.log(result);
-      });
-  }
-
-  update(id: string) {
-    let emp: Contracts.IEmployee = {
-      id: id,
-      name: '',
-      joinDate: new Date(),
-      salary: 1000,
-    };
-
-    this.client
-      .idPUT(id, Contracts.Employee.fromJS(emp))
-      .subscribe((result) => {
-        alert('Created Successfully.');
-        console.log(result);
-      });
-  }
-
   deleteById(id?: string) {
     this.client
       .idDELETE(id)
