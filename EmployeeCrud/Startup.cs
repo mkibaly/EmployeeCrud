@@ -22,6 +22,7 @@ namespace EmployeeCrud
 {
     public class Startup
     {
+        private const string AllowAllCors = "AllowAll";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -70,6 +71,15 @@ namespace EmployeeCrud
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "EmployeeCrud", Version = "v1" });
             });
 
+            services.AddCors(opt => opt.AddPolicy(AllowAllCors,
+                 builder =>
+                 {
+                     builder.AllowAnyHeader();
+                     builder.AllowAnyMethod();
+                     builder.AllowAnyOrigin();
+                 })
+            );
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -81,6 +91,8 @@ namespace EmployeeCrud
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "EmployeeCrud v1"));
             }
+
+            app.UseCors(AllowAllCors);
 
             app.UseHttpsRedirection();
 
