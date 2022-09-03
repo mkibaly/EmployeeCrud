@@ -13,6 +13,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using EmployeeCrud.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace EmployeeCrud
 {
@@ -28,15 +32,44 @@ namespace EmployeeCrud
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<EmployeeCrudContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("EmployeeCrudContext")));
+
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<EmployeeCrudContext>()
+                .AddDefaultTokenProviders();
+
+            // Adding Authentication
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+
+            // Adding Jwt Bearer
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidAudience = Configuration["JWT:ValidAudience"],
+                    ValidIssuer = Configuration["JWT:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+                };
+            });
+
 
             services.AddControllers();
+            services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "EmployeeCrud", Version = "v1" });
             });
 
-            services.AddDbContext<EmployeeCrudContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("EmployeeCrudContext")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,6 +84,10 @@ namespace EmployeeCrud
 
             app.UseHttpsRedirection();
 
+            // Authentication & Authorization
+            app.UseAuthentication();
+            app.UseAuthorization();
+            
             app.UseRouting();
 
             app.UseAuthorization();

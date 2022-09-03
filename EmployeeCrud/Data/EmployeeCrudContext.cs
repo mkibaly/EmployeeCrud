@@ -1,23 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using EmployeeCrud.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace EmployeeCrud.Data
 {
-    public class EmployeeCrudContext : DbContext
+    public class EmployeeCrudContext : IdentityDbContext<IdentityUser>
     {
         public EmployeeCrudContext (DbContextOptions<EmployeeCrudContext> options)
             : base(options)
         {
         }
 
-        public DbSet<EmployeeCrud.Models.Employee> Employee { get; set; } = default!;
+        public DbSet<Employee> Employee { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            base.OnModelCreating(builder);
+
             builder.Entity<Employee>()
                 .Property(a => a.Salary).HasColumnType("decimal(18,2)");
         }
