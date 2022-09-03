@@ -1,0 +1,32 @@
+
+<div class="">
+  <a class="btn btn-primary" [routerLink]="['employee']">Create New</a>
+</div>
+<div>
+  <div *ngFor="let item of employees" class="row border-bottom">
+    <div class="col-3">
+      <div>Name</div>
+      <h5>{{item.name}}</h5>
+    </div>
+    <div class="col-3">
+      <div>Join Date</div>
+      <h5>{{item.joinDate | date}}</h5>
+    </div>
+    <div class="col-3">
+      <div>Salary</div>
+      <h5>{{item.salary | number:'1.2-2'}}</h5>
+    </div>
+    <div class="col-3">
+      <div>Actions</div>
+      <div>
+        <a class="btn text-primary" title="Edit" [routerLink]="['employee', item.id]">
+          <i class="fa fa-pencil-square-o"></i>
+        </a>
+        <button class="btn text-danger" title="Delete" (click)="deleteById(item.id)">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div>Total: {{employees.length}}</div>
+</div>
